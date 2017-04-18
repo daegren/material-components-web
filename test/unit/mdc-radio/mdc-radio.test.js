@@ -16,6 +16,7 @@
 
 import {assert} from 'chai';
 import bel from 'bel';
+import td from 'testdouble';
 
 import {supportsCssVariables} from '../../../packages/mdc-ripple/util';
 import {createMockRaf} from '../helpers/raf';
@@ -102,4 +103,29 @@ test('#adapter.getNativeControl() returns the native radio element', () => {
   assert.equal(
     component.getDefaultFoundation().adapter_.getNativeControl(), root.querySelector(NATIVE_CONTROL_SELECTOR)
   );
+});
+
+test('adapter#shouldIgnoreRippleActivation returns false if not disabled', () => {
+  const {component} = setupTest();
+
+  assert.isFalse(component.ripple_.getDefaultFoundation().adapter_.shouldIgnoreRippleActivation());
+});
+
+function getDisabledFixture() {
+  return bel`
+    <div class="mdc-radio">
+      <input type="radio" id="my-radio" name="my-radio-group"
+             class="mdc-radio__native-control" aria-labelledby="my-radio-label" disabled>
+      <div class="mdc-radio__background">
+        <div class="mdc-radio__outer-circle"></div>
+        <div class="mdc-radio__inner-circle"></div>
+      </div>
+    </div>
+  `;
+}
+
+test('adapter#shouldIgnoreRippleActivation returns true if disabled', () => {
+  const component = new MDCRadio(getDisabledFixture());
+
+  assert.isTrue(component.ripple_.foundation_.adapter_.shouldIgnoreRippleActivation());
 });
